@@ -7,7 +7,7 @@ Before=systemd-networkd.service
 [Service]
 Type=simple
 Environment="NUMVFS=5"
-EnvironmentFile=-/etc/default/create-sriov-vfs-net
+EnvironmentFile=-/etc/default/create-sriov-vfs-net@%I
 ExecStart=/usr/bin/create-sriov-vfs net %I $NUMVFS
 
 [Install]
