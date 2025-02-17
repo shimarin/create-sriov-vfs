@@ -1,6 +1,10 @@
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+
 #include <print>
 #include <filesystem>
-#include <fstream>
 
 #include <argparse/argparse.hpp>
 
@@ -16,9 +20,17 @@ void create(const std::string& class_, const std::string& device, int count)
         throw std::runtime_error(std::format("Device {} does not support SR-IOV", device));
     }
     //else
-    {
-        std::ofstream sriov_numvfs(sriov_numvfs_path);
-        sriov_numvfs << count << std::endl;
+    int fd = open(sriov_numvfs_path.c_str(), O_WRONLY);
+    if (fd < 0) {
+        throw std::runtime_error(std::format("Failed to open {}", sriov_numvfs_path.string()));
+    }
+    //else
+    int rst = write(fd, std::to_string(count).c_str(), std::to_string(count).size());
+    close(fd);
+    if (rst < 0) {
+        throw std::runtime_error(std::format("Failed to write to {}: {}", 
+            sriov_numvfs_path.string(),
+            strerror(errno)));
     }
 }
 
